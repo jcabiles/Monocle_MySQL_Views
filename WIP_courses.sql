@@ -136,7 +136,7 @@ GROUP BY e.Enrolled_District, e.Enrolled_School, cds.school, cg.grade_level, cg.
 ORDER BY school_year desc, district, Total_Students_Affected DESC, school, grade_level;
 
 use ccgi_staging;
-CREATE OR REPLACE VIEW WIP_courses AS
+CREATE OR REPLACE VIEW WIP_courses_archived AS
 WITH ENR
 AS
 (
