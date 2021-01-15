@@ -74,15 +74,3 @@ select
 from temp_tbl t1
 GROUP BY Enrolled_District, Enrolled_School, term, school_year, grade_level
 ORDER BY Enrolled_District, Enrolled_School, term, school_year, grade_level
-
-
-
-
-
-
-select * from 
-s1_grades_s2_wip
-where enrolled_District LIKE 'Wasco%'
-
-
-
