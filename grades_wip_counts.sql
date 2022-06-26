@@ -29,15 +29,21 @@ SELECT
     inserted_at,
     school_year,
     term,
-    CASE WHEN work_in_progress = 'N' THEN 1 ELSE 0 END AS GRADES,
-    CASE WHEN work_in_progress = 'Y' THEN 1 ELSE 0 END AS WIP
+    CASE WHEN work_in_progress = 'N'  THEN 1 ELSE 0 END AS GRADES,
+    CASE WHEN (work_in_progress = 'Y' OR COURSE_GRADE = 'WIP') THEN 1 ELSE 0 END AS WIP
 FROM ccgitranscripts.archive_course_grades
 WHERE filename IN (select filename from recent_files WHERE row_num = 1 )
 
-### UPDATE ACADEMIC YEAR BELOW ####
 
-AND school_year = '2020-21'
 
+AND 
+	(
+		( MONTH(NOW()) IN (1,2,3,4,5,6,7) AND
+		substr(school_year, 1, 4) = YEAR(NOW())-1 )
+		OR 
+		( MONTH(NOW()) IN (8,9,10,11,12) AND
+		substr(school_year, 1, 4) = YEAR(NOW()))
+	)
 ) 
 
 , agg_course_grade_files as (
@@ -57,46 +63,12 @@ AND school_year = '2020-21'
 		term
 )
 
--- , filename_to_districtname as (
--- 	select
--- 		cgs1.filename, 
--- 		cgs1.cds_code as top_cds_code,
--- 		concat(substr(cgs1.cds_code,1,7), '0000000' ) as district_cds_code,
--- 		district_lookup.District
--- 	from (
--- 		select
--- 		cg.filename, 
--- 		cg.cds_code,
--- 		ROW_NUMBER() OVER (	
--- 			PARTITION BY cg.filename
--- 			ORDER BY cg.total_courses DESC
--- 		) row_num
--- 		from (
--- 			select 
--- 				CDS_CODE, filename, sum(grades)+sum(wip) as total_courses 
--- 			from course_grade_files
--- 			group by CDS_CODE, filename
--- 			order by filename, sum(grades)+sum(wip) desc
--- 		) cg
--- 	) cgs1 
--- 	left join (
--- 		SELECT 
--- 			DISTINCT
--- 			CDSCode,
--- 			District
--- 		FROM ccgitranscripts.cds_codes
--- 		WHERE SOCType = 'No Data'
--- 		order by CDSCode
--- 	) district_lookup 
--- 	on concat(substr(cgs1.cds_code,1,7), '0000000' ) = district_lookup.CDSCode
--- 	where cgs1.row_num = 1
--- ) select distinct substr(filename, 1, 9) sname, district from filename_to_districtname order by 2;
-
 select 
     case 
 		when substr(filename, 1, 9) =	'PUHSD_CCG'	then	'Perris Union High '
 		when substr(filename, 1, 9) =	'applevall'	then	'Apple Valley Unified'
-		when substr(filename, 1, 9) =	'brawleyad'	then	'Brawley Union High'
+		when substr(filename, 1, 9) =	'beaumonta'	then	'Beaumont Unified'
+        	when substr(filename, 1, 9) =	'brawleyad'	then	'Brawley Union High'
 		when substr(filename, 1, 9) =	'centinela'	then	'Centinela Valley Union High'
 		when substr(filename, 1, 9) =	'centralad'	then	'Central Unified'
 		when substr(filename, 1, 9) =	'ceresadmi'	then	'Ceres Unified'
@@ -139,12 +111,14 @@ select
 		when substr(filename, 1, 9) =	'mcfarland'	then	'McFarland Unified'
 		when substr(filename, 1, 9) =	'mendotaad'	then	'Mendota Unified'
 		when substr(filename, 1, 9) =	'morenoadm'	then	'Moreno Valley Unified'
-		when substr(filename, 1, 9) =	'MVUSD_CCG'	then	'Murrieta Valley Unified'
+		when substr(filename, 1, 9) =	'MVUSD_CCG'	or 
+			substr(filename, 1, 9) = 'murrietaa' then	'Murrieta Valley Unified'
 		when substr(filename, 1, 9) =	'newmancro'	then	'Newman-Crows Landing Unified'
 		when substr(filename, 1, 9) =	'norwalkla'	then	'Norwalk-La Mirada Unified'
 		when substr(filename, 1, 9) =	'oceanside'	then	'Oceanside Unified'
 		when substr(filename, 1, 9) =	'palmsprin'	then	'Palm Springs Unified'
 		when substr(filename, 1, 9) =	'pasadenaa'	then	'Pasadena Unified'
+        	when substr(filename, 1, 9) =	'pittsburg'	then	'Pittsburg Unified'
 		when substr(filename, 1, 9) =	'placeradm'	then	'Placer Union High'
 		when substr(filename, 1, 9) =	'Pomona_CC'	then	'Pomona Unified'
 		when substr(filename, 1, 9) =	'portervil'	then	'Porterville Unified'
@@ -161,7 +135,8 @@ select
 		when substr(filename, 1, 9) =	'sierrasan'	then	'Sierra Sands Unified'
 		when substr(filename, 1, 9) =	'snowlinej'	then	'Snowline Joint Unified'
 		when substr(filename, 1, 9) =	'taftunion'	then	'Taft Union High'
-		when substr(filename, 1, 9) =	'TVUSD_CCG'	then	'Temecula Valley Unified'
+		when substr(filename, 1, 9) =	'TVUSD_CCG' or 
+			substr(filename, 1, 9) =	'temeculaa'	then	'Temecula Valley Unified'
 		when substr(filename, 1, 9) =	'tracyjoin'	then	'Tracy Joint Unified'
 		when substr(filename, 1, 9) =	'tularejoi'	then	'Tulare Joint Union High'
 		when substr(filename, 1, 9) =	'valverdea'	then	'Val Verde Unified'
@@ -172,6 +147,15 @@ select
 		when substr(filename, 1, 9) =	'waterford'	then	'Waterford Unified'
 		when substr(filename, 1, 9) =	'woodlakea'	then	'Woodlake Unified'
 		when substr(filename, 1, 9) =	'woodlanda'	then	'Woodland Joint Unified'
+		when substr(filename, 1, 9) =	'burtonele'	then	'Burton Elementary'
+		when substr(filename, 1, 9) =	'coronaadm'	then	'Corona-Norco Unified'
+		when substr(filename, 1, 9) =	'lapromise'	then	'LA Promise Fund'
+		when substr(filename, 1, 9) =	'sanbernar'	then	'San Bernardino City Unified'
+		when substr(filename, 1, 9) =	'tracylear'	then	'Tracy Joint Unified'
+ 		when substr(filename, 1, 9) =	'barstowad'	then	'Bartow Unified'
+		when substr(filename, 1, 9) =	'placentia'	then	'Placentia-Yorba Linda Unified'
+		when substr(filename, 1, 9) =	'victorval'	then	'Victor Valley Union'
+		when substr(filename, 1, 9) =	'yucaipaca'	then	'Yucaipa-Calimesa Joint'       
 		else 'DISTRICT NAME NOT IDENTIFIED'
     end as district,
 	filename,
@@ -186,4 +170,3 @@ from
 order by 1,5
 
 ;
-#####################################################
