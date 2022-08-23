@@ -155,7 +155,9 @@ select
  		when substr(filename, 1, 9) =	'barstowad'	then	'Bartow Unified'
 		when substr(filename, 1, 9) =	'placentia'	then	'Placentia-Yorba Linda Unified'
 		when substr(filename, 1, 9) =	'victorval'	then	'Victor Valley Union'
-		when substr(filename, 1, 9) =	'yucaipaca'	then	'Yucaipa-Calimesa Joint'       
+		when substr(filename, 1, 9) =	'yucaipaca'	then	'Yucaipa-Calimesa Joint' 
+		when substr(filename, 1, 9) =	'alvordadm'	then	'Alvord Unified'  
+        	when substr(filename, 1, 9) =	'riverbank'	then	'Riverbank Unified' 
 		else 'DISTRICT NAME NOT IDENTIFIED'
     end as district,
 	filename,
